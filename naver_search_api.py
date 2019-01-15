@@ -5,6 +5,7 @@ import urllib.parse
 from bs4 import BeautifulSoup
 import time
 
+
 # search web api function
 def search_web_api(keyword, client_id, client_secret):
     enc_text = urllib.parse.quote(keyword)  # korean encoding
@@ -42,15 +43,21 @@ def search_blog_api(keyword, client_id, client_secret):
 
 # search blog not use api function
 # serach success = True, search Fail = False
-def search_blog_not_api(keyword, domain):
+def search_blog_not_api(keyword, domain, proxy):
     enc_text = urllib.parse.quote(keyword)  # korean encoding
     domain = urllib.parse.quote(domain)  # korean encoding
 
     url = "https://search.naver.com/search.naver?where=post&query=" + enc_text + "&st=sim&sm=tab_opt&date_from=&date_to=&date_option=0&srchby=all&dup_remove=1&post_blogurl=" + domain  + "&post_blogurl_without=&nso=so%3Ar%2Ca%3Aall%2Cp%3Aall&mson=0"
 
     request = urllib.request.Request(url)
+
+    if proxy is not None:
+        request.set_proxy(proxy[0],'http')
+        request.set_proxy(proxy[1], 'https')
+
     request.add_header("referer", 'https://search.naver.com/search.naver?sm=tab_hty.top&where=post&query=%ED%95%98%ED%95%98&oquery=%ED%95%98%ED%95%98&tqi=Uv0HllpVuFRssvJSfyKssssssy0-519159')
     request.add_header("user-agent", 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36')
+
     response = urllib.request.urlopen(request)
     rescode = response.getcode()
 
@@ -69,6 +76,18 @@ def txt_file_open(fp):
     return str_list
 
 
+def proxy_txt_file_open(fp):
+    f = open(fp, "r", encoding='utf-8')
+    str_list = f.readlines()
+    p_list = []
+    for item in str_list:
+        tmp = item.split(' ')
+        tmp2 = [ tmp[0].replace('\n',''), tmp[1].replace('\n','')]
+        p_list.append(tmp2)
+    f.close()
+    return p_list
+
+
 def write_result(file_name, keyword_id, keyword_count):
     with open(file_name, 'a', encoding='utf-8') as f:
         f.write("{keyword_id} {keyword_count}\n".format(keyword_id=str(keyword_id),
@@ -76,22 +95,30 @@ def write_result(file_name, keyword_id, keyword_count):
         f.close()
 
 
-def blog_search_process(domain_use_option):
+def blog_search_process(domain_use_option, proxy_use_option):
 
     if domain_use_option is True: # using domain, but we do not use naver search api
         blog_keyword_list = txt_file_open('test_set/blog_keywords.txt')
         domain_list = txt_file_open('test_set/domain.txt')
+        proxy_list = proxy_txt_file_open('test_set/proxy.txt')
+
         key_idx = 0
+        proxy_idx = 0
 
         now = datetime.datetime.now()
         now_date_time = now.strftime('%Y_%m_%d_%H_%M_%S')
 
-        while key_idx < len(blog_keyword_list):
+        while key_idx < len(blog_keyword_list) :
             try:
                 k = blog_keyword_list[key_idx]
 
                 for domain in domain_list:
-                    flag, keyword, content = search_blog_not_api(k, domain)
+                    if proxy_use_option:
+                        proxy = proxy_list[proxy_idx]
+                    else:
+                        proxy = None
+
+                    flag, keyword, content = search_blog_not_api(k, domain, proxy)
                     if flag:  # search success
                         total_tag = content.find('span',{'class':'title_num'})
                         if total_tag is not None:
@@ -100,9 +127,14 @@ def blog_search_process(domain_use_option):
                         key_idx = key_idx + 1
                         time.sleep(2)
                     else:  # search error, need proxy server
-                        pass
+                        proxy_idx = proxy_idx + 1
+                        print('error')
             except:
-                pass  # need proxy server
+                print('error')
+                proxy_idx = proxy_idx + 1
+
+            if proxy_idx >= len(proxy_list):
+                break
 
     else:
         api_idx = 0
@@ -117,7 +149,7 @@ def blog_search_process(domain_use_option):
         now = datetime.datetime.now()
         now_date_time = now.strftime('%Y_%m_%d_%H_%M_%S')
 
-        while key_idx < len(blog_keyword_list):
+        while key_idx < len(blog_keyword_list) and api_idx < len(api_list):
             try:
                 k = blog_keyword_list[key_idx]
                 flag, keyword, content = search_blog_api(k, api_client_key, api_secret_key)
@@ -129,8 +161,10 @@ def blog_search_process(domain_use_option):
                     time.sleep(2)
                 else:  # search error
                     api_idx = api_idx + 1
+                    print('error')
             except:
                 api_idx = api_idx + 1
+                print('error')
 
 
 def web_search_process(option):
@@ -146,7 +180,7 @@ def web_search_process(option):
     now = datetime.datetime.now()
     now_date_time = now.strftime('%Y_%m_%d_%H_%M_%S')
 
-    while key_idx < len(web_keyword_list):
+    while key_idx < len(web_keyword_list) and api_idx < len(api_list):
         try:
             k = web_keyword_list[key_idx]
             if option == 1:  # site
@@ -160,8 +194,10 @@ def web_search_process(option):
                 time.sleep(2)
             else:  # search error
                 api_idx = api_idx + 1
+                print('error')
         except:
             api_idx = api_idx + 1
+            print('error')
 
 # 검색옵션
 # 0 : 블로그 검색(출처 사용 안함, naver api 이용)
@@ -171,14 +207,16 @@ def web_search_process(option):
 # 아래 숫자만 변경하시고, 절대 다른 텍스트나 줄을 변경하시면 안됩니다.
 0
 if __name__ == '__main__':
-    search_option = int(txt_file_open('set.txt')[7])
+    search_option = int(txt_file_open('set.txt')[8])
     if search_option == 0:
-        blog_search_process(False)
+        blog_search_process(False, False)
     elif search_option == 1:
-        blog_search_process(True)
+        blog_search_process(True, False)
     elif search_option == 2:
-        web_search_process(0)
+        blog_search_process(True, True)
     elif search_option == 3:
+        web_search_process(0)
+    elif search_option == 4:
         web_search_process(1)
     else:
         print('search option error')
