@@ -4,10 +4,27 @@ import urllib.request
 import urllib.parse
 
 
-# search api function
-def search_api(keyword, client_id, client_secret):
+# search web api function
+def search_web_api(keyword, client_id, client_secret):
     enc_text = urllib.parse.quote(keyword)  # korean encoding
     url = "https://openapi.naver.com/v1/search/webkr?query=" + enc_text
+    request = urllib.request.Request(url)
+    request.add_header("X-Naver-Client-Id", client_id)
+    request.add_header("X-Naver-Client-Secret", client_secret)
+    response = urllib.request.urlopen(request)
+    rescode = response.getcode()
+
+    if (rescode == 200):
+        response_body = response.read()
+        return True, keyword, response_body.decode('utf-8')
+    else:
+        return False, keyword, rescode
+
+
+# search blog api function
+def search_blog_api(keyword, client_id, client_secret):
+    enc_text = urllib.parse.quote(keyword)  # korean encoding
+    url = "https://openapi.naver.com/v1/search/blog?query=" + enc_text
     request = urllib.request.Request(url)
     request.add_header("X-Naver-Client-Id", client_id)
     request.add_header("X-Naver-Client-Secret", client_secret)
@@ -34,30 +51,38 @@ def write_result(file_name, keyword_id, keyword_count):
                                                         keyword_count=str(keyword_count)))
         f.close()
 
+def blog_search_process(option):
+    blog_keyword_list = txt_file_open('blog_keywords.txt')
+
+
+def web_search_process(option):
+    api_idx = 0
+    key_idx = 0
+
+    web_keyword_list = txt_file_open('set/web_keywords.txt')
+    api_list = txt_file_open('set/api.txt')
+
+    api_client_key = api_list[api_idx].split(' ')[0].replace('\n', '')
+    api_secret_key = api_list[api_idx].split(' ')[1].replace('\n', '')
+
+    now = datetime.datetime.now()
+    now_date_time = now.strftime('%Y_%m_%d_%H_%M_%S')
+
+    while True:
+        k = web_keyword_list[key_idx]
+
+        if option == 1:  # site
+            k = 'site:' + k
+
+        flag, keyword, content = search_blog_api(k, api_client_key, api_secret_key)
+
+        if flag:  # search success
+            total_count = json.loads(content)['total']
+            write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
+            key_idx = key_idx + 1
+        else:  # search error
+            api_idx = api_idx + 1
+
 
 if __name__ == '__main__':
-    keyword_list = txt_file_open('keywords.txt')
-    api_list = txt_file_open('api.txt')
-
-    option = 1
-
-    for api in api_list:
-
-        now = datetime.datetime.now()
-        nowDatetime = now.strftime('%Y_%m_%d_%H_%M_%S')
-
-        api_client_key = api.split(' ')[0].replace('\n', '')
-        api_secret_key = api.split(' ')[1].replace('\n', '')
-        for k in keyword_list:
-            try:
-
-                if option == 1:
-                    k = 'site:' + k
-
-                flag, keyword, content = search_api(k, api_client_key, api_secret_key)
-                if flag:
-                    total_count = json.loads(content)['total']
-                    write_result(nowDatetime + '.txt', keyword.replace('\n', ''), total_count)
-            except:
-                print("error 발생")
-                break
+    pass
