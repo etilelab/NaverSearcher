@@ -1,3 +1,2 @@
-qrk7vbNW9XtPlepBnE90 hC9ShIvgKD
-qrk7vbNW9XtPlepBnE90 hC9ShIvgKD
-qrk7vbNW9XtPlepBnE90 hC9ShIvgKD
+api_client_key1 api_secret_key1
+api_client_key2 api_secret_key2

@@ -44,6 +44,7 @@ def search_blog_api(keyword, client_id, client_secret):
 # serach success = True, search Fail = False
 def search_blog_not_api(keyword, domain):
     enc_text = urllib.parse.quote(keyword)  # korean encoding
+    domain = urllib.parse.quote(domain)  # korean encoding
 
     url = "https://search.naver.com/search.naver?where=post&query=" + enc_text + "&st=sim&sm=tab_opt&date_from=&date_to=&date_option=0&srchby=all&dup_remove=1&post_blogurl=" + domain  + "&post_blogurl_without=&nso=so%3Ar%2Ca%3Aall%2Cp%3Aall&mson=0"
 
@@ -78,8 +79,8 @@ def write_result(file_name, keyword_id, keyword_count):
 def blog_search_process(domain_use_option):
 
     if domain_use_option is True: # using domain, but we do not use naver search api
-        blog_keyword_list = txt_file_open('set/blog_keywords.txt')
-        domain_list = txt_file_open('set/domain.txt')
+        blog_keyword_list = txt_file_open('test_set/blog_keywords.txt')
+        domain_list = txt_file_open('test_set/domain.txt')
         key_idx = 0
 
         now = datetime.datetime.now()
@@ -90,12 +91,12 @@ def blog_search_process(domain_use_option):
                 k = blog_keyword_list[key_idx]
 
                 for domain in domain_list:
-                    flag, keyword, content = search_blog_not_api(k,domain)
+                    flag, keyword, content = search_blog_not_api(k, domain)
                     if flag:  # search success
                         total_tag = content.find('span',{'class':'title_num'})
                         if total_tag is not None:
                             total_count = str(total_tag.text).split('/')[1].split('건')[0].strip()
-                            write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
+                            write_result(now_date_time + '.txt', keyword.replace('\n', '') + ' ' + domain.replace('\n',''), total_count)
                         key_idx = key_idx + 1
                     else:  # search error, need proxy server
                         pass
@@ -106,8 +107,8 @@ def blog_search_process(domain_use_option):
         api_idx = 0
         key_idx = 0
 
-        blog_keyword_list = txt_file_open('set/blog_keywords.txt')
-        api_list = txt_file_open('set/api.txt')
+        blog_keyword_list = txt_file_open('test_set/blog_keywords.txt')
+        api_list = txt_file_open('test_set/api.txt')
 
         api_client_key = api_list[api_idx].split(' ')[0].replace('\n', '')
         api_secret_key = api_list[api_idx].split(' ')[1].replace('\n', '')
@@ -134,8 +135,8 @@ def web_search_process(option):
     api_idx = 0
     key_idx = 0
 
-    web_keyword_list = txt_file_open('set/web_keywords.txt')
-    api_list = txt_file_open('set/api.txt')
+    web_keyword_list = txt_file_open('test_set/web_keywords.txt')
+    api_list = txt_file_open('test_set/api.txt')
 
     api_client_key = api_list[api_idx].split(' ')[0].replace('\n', '')
     api_secret_key = api_list[api_idx].split(' ')[1].replace('\n', '')
@@ -161,4 +162,4 @@ def web_search_process(option):
 
 
 if __name__ == '__main__':
-    blog_search_process(True)
+    blog_search_process(domain_use_option=False)
