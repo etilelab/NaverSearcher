@@ -3,7 +3,7 @@ import datetime
 import urllib.request
 import urllib.parse
 from bs4 import BeautifulSoup
-
+import time
 
 # search web api function
 def search_web_api(keyword, client_id, client_secret):
@@ -98,6 +98,7 @@ def blog_search_process(domain_use_option):
                             total_count = str(total_tag.text).split('/')[1].split('건')[0].strip()
                             write_result(now_date_time + '.txt', keyword.replace('\n', '') + ' ' + domain.replace('\n',''), total_count)
                         key_idx = key_idx + 1
+                        time.sleep(2)
                     else:  # search error, need proxy server
                         pass
             except:
@@ -125,6 +126,7 @@ def blog_search_process(domain_use_option):
                     if total_count > 0:
                         write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
                     key_idx = key_idx + 1
+                    time.sleep(2)
                 else:  # search error
                     api_idx = api_idx + 1
             except:
@@ -155,11 +157,30 @@ def web_search_process(option):
                 if total_count > 0:
                     write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
                 key_idx = key_idx + 1
+                time.sleep(2)
             else:  # search error
                 api_idx = api_idx + 1
         except:
             api_idx = api_idx + 1
 
-
+# 검색옵션
+# 0 : 블로그 검색(출처 사용 안함, naver api 이용)
+# 1 : 블로그 검색(출처 사용)
+# 2 : 웹 문서 검색(naver api 이용)
+# 아래에 해당하는 번호를 적어주세요, 0 이면 블로그 검색(출처 사용안함, naver api 이용) 을 진행하게 됩니다.
+# 아래 숫자만 변경하시고, 절대 다른 텍스트나 줄을 변경하시면 안됩니다.
+0
 if __name__ == '__main__':
-    blog_search_process(domain_use_option=False)
+    search_option = int(txt_file_open('set.txt')[7])
+    if search_option == 0:
+        blog_search_process(False)
+    elif search_option == 1:
+        blog_search_process(True)
+    elif search_option == 2:
+        web_search_process(0)
+    elif search_option == 3:
+        web_search_process(1)
+    else:
+        print('search option error')
+
+
