@@ -1,0 +1,48 @@
+네
+아이디 여러개 사용할경우에는
+api파일에
+qrk7vbNW9XtPlepBnE90 hC9ShIvgKD
+qrk7vbNW9XtPlepBnE90 hC9ShIvgKD
+qrk7vbNW9XtPlepBnE90 hC9ShIvgKD
+
+
+--------------------
+추가 기능은
+블로그영역 검색입니다.
+
+https://search.naver.com/search.naver?where=post&query=%EC%87%BC%ED%95%91&st=sim&sm=tab_opt&date_from=&date_to=&date_option=0&srchby=all&dup_remove=1&post_blogurl=tistory.com&post_blogurl_without=&nso=so%3Ar%2Ca%3Aall%2Cp%3Aall&mson=0
+
+"쇼핑" 이라는 키워드로 블로그검색을 한건데요.
+검색옵션에서 출처선택으로 tistory.com 을 넣고 검색을 한겁니다.
+검색결과는 저번과 같이 등록된 건수를 저장을 하면 됩니다.
+
+위 링크 예로 보면 281,471건  입니다.
+
+
+
+
+키워드는 텍스트 파일에 저장을 해놓은걸 사용을 했으면합니다.
+키워드가 하나를 저장해놓을수도 있고 여러개 넣을수도 있습니다.
+
+예)
+쇼핑
+BSKOREA
+중국해외직구
+오일릴리스타일
+동대문남자옷도매
+해독주스배달
+청포도막걸리
+화곡동유통단지
+디톡스워터
+
+
+
+
+
+만약 키워드가 여러개라면
+각 도메인별로 키워드를 전체 검색을 했으면 합니다.
+https://search.naver.com/search.naver?where=post&query=%EC%87%BC%ED%95%91&st=sim&sm=tab_opt&date_from=&date_to=&date_option=0&srchby=all&dup_remove=1&post_blogurl=tistory.com&post_blogurl_without=&nso=so%3Ar%2Ca%3Aall%2Cp%3Aall&mson=0
+
+https://search.naver.com/search.naver?where=post&query=BSKOREA&st=sim&sm=tab_opt&date_from=&date_to=&date_option=0&srchby=all&dup_remove=1&post_blogurl=tistory.com&post_blogurl_without=&nso=so%3Ar%2Ca%3Aall%2Cp%3Aall&mson=0
+
+https://search.naver.com/search.naver?where=post&query=%EC%A4%91%EA%B5%AD%ED%95%B4%EC%99%B8%EC%A7%81%EA%B5%AC&st=sim&sm=tab_opt&date_from=&date_to=&date_option=0&srchby=all&dup_remove=1&post_blogurl=tistory.com&post_blogurl_without=&nso=so%3Ar%2Ca%3Aall%2Cp%3Aall&mson=0
