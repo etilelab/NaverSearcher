@@ -4,6 +4,7 @@ import urllib.request
 import urllib.parse
 from bs4 import BeautifulSoup
 
+
 # search web api function
 def search_web_api(keyword, client_id, client_secret):
     enc_text = urllib.parse.quote(keyword)  # korean encoding
@@ -38,11 +39,13 @@ def search_blog_api(keyword, client_id, client_secret):
     else:
         return False, keyword, rescode
 
+
 # search blog not use api function
 # serach success = True, search Fail = False
 def search_blog_not_api(keyword, domain):
     enc_text = urllib.parse.quote(keyword)  # korean encoding
-    url = "https://search.naver.com/search.naver?where=post&query=" + enc_text + "&st=sim&sm=tab_opt&date_from=&date_to=&date_option=0&srchby=all&dup_remove=1&post_blogurl=tistory.com&post_blogurl_without=&nso=so%3Ar%2Ca%3Aall%2Cp%3Aall&mson=0"
+
+    url = "https://search.naver.com/search.naver?where=post&query=" + enc_text + "&st=sim&sm=tab_opt&date_from=&date_to=&date_option=0&srchby=all&dup_remove=1&post_blogurl=" + domain  + "&post_blogurl_without=&nso=so%3Ar%2Ca%3Aall%2Cp%3Aall&mson=0"
 
     request = urllib.request.Request(url)
     request.add_header("referer", 'https://search.naver.com/search.naver?sm=tab_hty.top&where=post&query=%ED%95%98%ED%95%98&oquery=%ED%95%98%ED%95%98&tqi=Uv0HllpVuFRssvJSfyKssssssy0-519159')
@@ -72,10 +75,11 @@ def write_result(file_name, keyword_id, keyword_count):
         f.close()
 
 
-def blog_search_process(option):
+def blog_search_process(domain_use_option):
 
-    if option == 0: # not use naver search api
+    if domain_use_option is True: # using domain, but we do not use naver search api
         blog_keyword_list = txt_file_open('set/blog_keywords.txt')
+        domain_list = txt_file_open('set/domain.txt')
         key_idx = 0
 
         now = datetime.datetime.now()
@@ -84,15 +88,17 @@ def blog_search_process(option):
         while key_idx < len(blog_keyword_list):
             try:
                 k = blog_keyword_list[key_idx]
-                flag, keyword, content = search_blog_not_api(k,'t')
-                if flag:  # search success
-                    total_tag = content.find('span',{'class':'title_num'})
-                    if total_tag is not None:
-                        total_count = str(total_tag.text).split('/')[1].split('건')[0].strip()
-                        write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
-                    key_idx = key_idx + 1
-                else:  # search error, need proxy server
-                    pass
+
+                for domain in domain_list:
+                    flag, keyword, content = search_blog_not_api(k,domain)
+                    if flag:  # search success
+                        total_tag = content.find('span',{'class':'title_num'})
+                        if total_tag is not None:
+                            total_count = str(total_tag.text).split('/')[1].split('건')[0].strip()
+                            write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
+                        key_idx = key_idx + 1
+                    else:  # search error, need proxy server
+                        pass
             except:
                 pass  # need proxy server
 
@@ -155,4 +161,4 @@ def web_search_process(option):
 
 
 if __name__ == '__main__':
-    blog_search_process(1)
+    blog_search_process(True)
