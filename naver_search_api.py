@@ -100,7 +100,7 @@ def blog_search_process(option):
         api_idx = 0
         key_idx = 0
 
-        blog_keyword_list = txt_file_open('set/web_keywords.txt')
+        blog_keyword_list = txt_file_open('set/blog_keywords.txt')
         api_list = txt_file_open('set/api.txt')
 
         api_client_key = api_list[api_idx].split(' ')[0].replace('\n', '')
