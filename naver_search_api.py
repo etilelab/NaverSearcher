@@ -124,7 +124,7 @@ def blog_search_process(domain_use_option, proxy_use_option):
                         total_tag = content.find('span',{'class':'title_num'})
                         if total_tag is not None:
                             total_count = str(total_tag.text).split('/')[1].split('건')[0].strip()
-                            print(domain.replace('\n','') + ' / ' + keyword.replace('\n','') + ' / ' + total_count)
+                            print(domain.replace('\n','') + ' / ' + keyword.replace('\n','') + ' / ' + str(total_count))
                             write_result(now_date_time + '.txt',domain.replace('\n',''),  keyword.replace('\n', '') + ' ', total_count)
 
                     else:  # search error, need proxy server
@@ -134,7 +134,7 @@ def blog_search_process(domain_use_option, proxy_use_option):
                 key_idx = key_idx + 1
                 time.sleep(2)
             except:
-                print('에러 발생')
+                print(k.replace('\n','') + ' 에러 발생')
                 proxy_idx = proxy_idx + 1
 
             if proxy_idx >= len(proxy_list):
@@ -157,16 +157,17 @@ def blog_search_process(domain_use_option, proxy_use_option):
             try:
                 k = blog_keyword_list[key_idx]
                 flag, keyword, content = search_blog_api(k, api_client_key, api_secret_key)
+
                 if flag:  # search success
                     total_count = json.loads(content)['total']
-                    print(keyword.replace('\n', '') + ' ' + total_count + ' 검색결과')
+                    print('블로그 ' + keyword.replace('\n', '') + ' ' + str(total_count) + ' 검색결과')
                     if total_count > 0:
                         write_result(now_date_time + '.txt','', keyword.replace('\n', ''), total_count)
                     key_idx = key_idx + 1
                     time.sleep(2)
                 else:  # search error
                     api_idx = api_idx + 1
-                    print('error')
+                    print('검색 error')
             except:
                 api_idx = api_idx + 1
                 print('error')
@@ -193,7 +194,7 @@ def web_search_process(option):
             flag, keyword, content = search_web_api(k, api_client_key, api_secret_key)
             if flag:  # search success
                 total_count = json.loads(content)['total']
-                print(keyword.replace('\n', '') + ' ' + total_count + ' 검색결과')
+                print('웹문서 ' + keyword.replace('\n', '') + ' ' + str(total_count) + ' 검색결과')
                 if total_count > 0:
                     write_result(now_date_time + '.txt', '', keyword.replace('\n', ''), total_count)
                 key_idx = key_idx + 1
@@ -221,7 +222,7 @@ if __name__ == '__main__':
         print('블로그 검색(출처 사용, naver api 이용 안함, 프록시 사용안함))')
         blog_search_process(True, False)
     elif search_option == 2:
-        print('블로그 검색(철처 사용, naver api 이용안함, 프록시 사용)')
+        print('블로그 검색(출처 사용, naver api 이용안함, 프록시 사용)')
         blog_search_process(True, True)
     elif search_option == 3:
         print('웹 문서 검색(naver api 이용, site 사용 안함)')
