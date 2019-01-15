@@ -1,0 +1,12 @@
+tistory.com 우리  3,946,697
+naver.com 우리  76,824,743
+tistory.com 나라  1,485,278
+naver.com 나라  20,390,982
+tistory.com 다음  121,470
+naver.com 다음  136,964
+tistory.com 이  9,023,446
+naver.com 이  127,418,406
+tistory.com a  1,605,906
+naver.com a  14,993,879
+tistory.com abc  43,822
+naver.com abc  401,007

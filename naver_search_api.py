@@ -88,9 +88,9 @@ def proxy_txt_file_open(fp):
     return p_list
 
 
-def write_result(file_name, keyword_id, keyword_count):
+def write_result(file_name, domain, keyword_id, keyword_count):
     with open(file_name, 'a', encoding='utf-8') as f:
-        f.write("{keyword_id} {keyword_count}\n".format(keyword_id=str(keyword_id),
+        f.write("{domain} {keyword_count} {keyword_id}\n".format(domain=domain, keyword_id=str(keyword_id),
                                                         keyword_count=str(keyword_count)))
         f.close()
 
@@ -99,6 +99,7 @@ def blog_search_process(domain_use_option, proxy_use_option):
 
     if domain_use_option is True: # using domain, but we do not use naver search api
         blog_keyword_list = txt_file_open('test_set/blog_keywords.txt')
+
         domain_list = txt_file_open('test_set/domain.txt')
         proxy_list = proxy_txt_file_open('test_set/proxy.txt')
 
@@ -111,7 +112,6 @@ def blog_search_process(domain_use_option, proxy_use_option):
         while key_idx < len(blog_keyword_list) :
             try:
                 k = blog_keyword_list[key_idx]
-
                 for domain in domain_list:
                     if proxy_use_option:
                         proxy = proxy_list[proxy_idx]
@@ -119,18 +119,22 @@ def blog_search_process(domain_use_option, proxy_use_option):
                         proxy = None
 
                     flag, keyword, content = search_blog_not_api(k, domain, proxy)
+
                     if flag:  # search success
                         total_tag = content.find('span',{'class':'title_num'})
                         if total_tag is not None:
                             total_count = str(total_tag.text).split('/')[1].split('건')[0].strip()
-                            write_result(now_date_time + '.txt', keyword.replace('\n', '') + ' ' + domain.replace('\n',''), total_count)
-                        key_idx = key_idx + 1
-                        time.sleep(2)
+                            print(domain.replace('\n','') + ' / ' + keyword.replace('\n','') + ' / ' + total_count)
+                            write_result(now_date_time + '.txt',domain.replace('\n',''),  keyword.replace('\n', '') + ' ', total_count)
+
                     else:  # search error, need proxy server
+                        print(domain.replace('\n','') + ' ' + keyword.replace('\n','') + ' error 발생')
                         proxy_idx = proxy_idx + 1
-                        print('error')
+
+                key_idx = key_idx + 1
+                time.sleep(2)
             except:
-                print('error')
+                print('에러 발생')
                 proxy_idx = proxy_idx + 1
 
             if proxy_idx >= len(proxy_list):
@@ -155,8 +159,9 @@ def blog_search_process(domain_use_option, proxy_use_option):
                 flag, keyword, content = search_blog_api(k, api_client_key, api_secret_key)
                 if flag:  # search success
                     total_count = json.loads(content)['total']
+                    print(keyword.replace('\n', '') + ' ' + total_count + ' 검색결과')
                     if total_count > 0:
-                        write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
+                        write_result(now_date_time + '.txt','', keyword.replace('\n', ''), total_count)
                     key_idx = key_idx + 1
                     time.sleep(2)
                 else:  # search error
@@ -188,8 +193,9 @@ def web_search_process(option):
             flag, keyword, content = search_web_api(k, api_client_key, api_secret_key)
             if flag:  # search success
                 total_count = json.loads(content)['total']
+                print(keyword.replace('\n', '') + ' ' + total_count + ' 검색결과')
                 if total_count > 0:
-                    write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
+                    write_result(now_date_time + '.txt', '', keyword.replace('\n', ''), total_count)
                 key_idx = key_idx + 1
                 time.sleep(2)
             else:  # search error
@@ -209,14 +215,19 @@ def web_search_process(option):
 if __name__ == '__main__':
     search_option = int(txt_file_open('set.txt')[8])
     if search_option == 0:
+        print('블로그 검색(출처 사용 안함, naver api 이용)으로 검색 시작')
         blog_search_process(False, False)
     elif search_option == 1:
+        print('블로그 검색(출처 사용, naver api 이용 안함, 프록시 사용안함))')
         blog_search_process(True, False)
     elif search_option == 2:
+        print('블로그 검색(철처 사용, naver api 이용안함, 프록시 사용)')
         blog_search_process(True, True)
     elif search_option == 3:
+        print('웹 문서 검색(naver api 이용, site 사용 안함)')
         web_search_process(0)
     elif search_option == 4:
+        print('웹 문서 검색(naver api 이용, site 사용)')
         web_search_process(1)
     else:
         print('search option error')
