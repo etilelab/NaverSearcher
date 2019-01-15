@@ -52,7 +52,39 @@ def write_result(file_name, keyword_id, keyword_count):
         f.close()
 
 def blog_search_process(option):
-    blog_keyword_list = txt_file_open('blog_keywords.txt')
+
+    if option == 0: # not use naver search api
+        blog_keyword_list = txt_file_open('blog_keywords.txt')
+        key_idx = 0
+
+
+
+    else:
+        api_idx = 0
+        key_idx = 0
+
+        blog_keyword_list = txt_file_open('set/web_keywords.txt')
+        api_list = txt_file_open('set/api.txt')
+
+        api_client_key = api_list[api_idx].split(' ')[0].replace('\n', '')
+        api_secret_key = api_list[api_idx].split(' ')[1].replace('\n', '')
+
+        now = datetime.datetime.now()
+        now_date_time = now.strftime('%Y_%m_%d_%H_%M_%S')
+
+        while key_idx < len(blog_keyword_list):
+            try:
+                k = blog_keyword_list[key_idx]
+                flag, keyword, content = search_blog_api(k, api_client_key, api_secret_key)
+                if flag:  # search success
+                    total_count = json.loads(content)['total']
+                    if total_count > 0:
+                        write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
+                    key_idx = key_idx + 1
+                else:  # search error
+                    api_idx = api_idx + 1
+            except:
+                api_idx = api_idx + 1
 
 
 def web_search_process(option):
@@ -68,21 +100,22 @@ def web_search_process(option):
     now = datetime.datetime.now()
     now_date_time = now.strftime('%Y_%m_%d_%H_%M_%S')
 
-    while True:
-        k = web_keyword_list[key_idx]
-
-        if option == 1:  # site
-            k = 'site:' + k
-
-        flag, keyword, content = search_blog_api(k, api_client_key, api_secret_key)
-
-        if flag:  # search success
-            total_count = json.loads(content)['total']
-            write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
-            key_idx = key_idx + 1
-        else:  # search error
+    while key_idx < len(web_keyword_list):
+        try:
+            k = web_keyword_list[key_idx]
+            if option == 1:  # site
+                k = 'site:' + k
+            flag, keyword, content = search_web_api(k, api_client_key, api_secret_key)
+            if flag:  # search success
+                total_count = json.loads(content)['total']
+                if total_count > 0:
+                    write_result(now_date_time + '.txt', keyword.replace('\n', ''), total_count)
+                key_idx = key_idx + 1
+            else:  # search error
+                api_idx = api_idx + 1
+        except:
             api_idx = api_idx + 1
 
 
 if __name__ == '__main__':
-    pass
+    web_search_process(0)
