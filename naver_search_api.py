@@ -133,7 +133,7 @@ def blog_search_process(domain_use_option, proxy_use_option):
 
                 key_idx = key_idx + 1
                 time.sleep(2)
-            except:
+            except Exception as e:
                 print(k.replace('\n','') + ' 에러 발생')
                 proxy_idx = proxy_idx + 1
 
@@ -168,7 +168,7 @@ def blog_search_process(domain_use_option, proxy_use_option):
                 else:  # search error
                     api_idx = api_idx + 1
                     print('검색 error')
-            except:
+            except Exception as e:
                 api_idx = api_idx + 1
                 print('error')
 
@@ -201,10 +201,10 @@ def web_search_process(option):
                 time.sleep(2)
             else:  # search error
                 api_idx = api_idx + 1
-                print('error')
-        except:
+                print('api 에러 error')
+        except Exception as e:
             api_idx = api_idx + 1
-            print('error')
+            print(e)
 
 # 검색옵션
 # 0 : 블로그 검색(출처 사용 안함, naver api 이용)
